@@ -24,6 +24,7 @@ Type *ptrTy = builder.getPtrTy();
 Type *voidTy = builder.getVoidTy();
 
 Constant *getInt(int32_t val) { return ConstantInt::get(intTy, val, true); }
+Constant *getLong(int64_t val) { return ConstantInt::get(longTy, val, true); }
 Constant *getBool(int val) { return ConstantInt::get(boolTy, val); }
 
 constexpr uint64_t layerSize = SIM_X_SIZE * SIM_Y_SIZE;
@@ -34,11 +35,13 @@ GlobalVariable *varBUF = new GlobalVariable(
 
 GlobalVariable *varBoardSrc
     = new GlobalVariable(*module, ptrTy, false, GlobalVariable::PrivateLinkage, varBUF, "board");
+
+Constant *idxList[] = {getLong(0), getLong(1), getLong(0)};
 GlobalVariable *varBoardDst = new GlobalVariable(*module,
                                                  ptrTy,
                                                  false,
                                                  GlobalVariable::InternalLinkage,
-                                                 ConstantExpr::getInBoundsGetElementPtr(varBUFTy, varBUF, getInt(1)),
+                                                 ConstantExpr::getInBoundsGetElementPtr(varBUFTy, varBUF, idxList),
                                                  "boardNext");
 
 FunctionType *fnMainTy = FunctionType::get(intTy, {intTy, ptrTy}, false);
@@ -56,6 +59,7 @@ FunctionType *fnSimSetPixelTy = FunctionType::get(voidTy, {intTy, intTy, intTy},
 FunctionCallee fnSimSetPixel = module->getOrInsertFunction("simSetPixel", fnSimSetPixelTy);
 
 void defineMain() {
+    module->setTargetTriple("x86_64-pc-linux-gnu");
     BasicBlock *bb2 = BasicBlock::Create(context, "", fnMain);
     builder.SetInsertPoint(bb2);
     builder.CreateCall(fnSimBegin)->setTailCall();
@@ -265,6 +269,7 @@ void defineMain() {
     Value *val118 = builder.CreateZExt(val117, intTy);
     Value *val119 = builder.CreateLoad(ptrTy, varBoardDst);
     Value *val120 = builder.CreateInBoundsGEP(intTy, val119, val110);
+    builder.CreateStore(val118, val120);
     Value *val121 = builder.CreateSelect(val117, getInt(0), getInt(0xFFFFFF));
     builder.CreateCall(fnSimSetPixel, {val27, val13, val121})->setTailCall();
     Value *val122 = builder.CreateICmpULT(val59, getInt(SIM_X_SIZE));
