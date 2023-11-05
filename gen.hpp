@@ -47,7 +47,7 @@ inline GlobalVariable *varBoardDst
                          ConstantExpr::getInBoundsGetElementPtr(varBUFTy, varBUF, idxList),
                          "boardNext");
 
-inline FunctionType *fnMainTy = FunctionType::get(intTy, {intTy, ptrTy}, false);
+inline FunctionType *fnMainTy = FunctionType::get(intTy, false);
 inline Function *fnMain = Function::Create(fnMainTy, Function::ExternalLinkage, "main", module);
 
 inline FunctionType *voidFnTy = FunctionType::get(voidTy, false);

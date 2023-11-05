@@ -13,3 +13,7 @@ include_directories(hw01 ${LLVM_INCLUDE_DIRS})
 add_executable(gen gen.cpp gen.hpp)
 target_link_directories(gen PRIVATE ${LLVM_LIBRARY_DIRS})
 target_link_libraries(gen LLVM)
+
+add_executable(interp interp.cpp gen.hpp)
+target_link_directories(interp PRIVATE ${LLVM_LIBRARY_DIRS})
+target_link_libraries(interp LLVM sim)
