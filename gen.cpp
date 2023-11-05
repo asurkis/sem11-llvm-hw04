@@ -13,7 +13,7 @@
 using namespace llvm;
 
 LLVMContext context;
-Module *module = new Module("", context);
+Module *module = new Module("main.c", context);
 IRBuilder<> builder(context);
 
 // Type *charTy = builder.getInt8Ty();
@@ -51,7 +51,9 @@ FunctionCallee fnSimEnd = module->getOrInsertFunction("simEnd", voidFnTy);
 
 FunctionType *fnSimShouldContinueTy = FunctionType::get(intTy, false);
 FunctionCallee fnSimShouldContinue = module->getOrInsertFunction("simShouldContinue", fnSimShouldContinueTy);
-// FunctionCallee fnSimSetPixel = module->getOrInsertFunction("simSetPixel");
+
+FunctionType *fnSimSetPixelTy = FunctionType::get(voidTy, {intTy, intTy, intTy}, false);
+FunctionCallee fnSimSetPixel = module->getOrInsertFunction("simSetPixel", fnSimSetPixelTy);
 
 void defineMain() {
     BasicBlock *bb2 = BasicBlock::Create(context, "", fnMain);
@@ -82,7 +84,7 @@ void defineMain() {
     BasicBlock *bb128 = BasicBlock::Create(context, "", fnMain);
 
     // initBoard
-    Value *val3 = builder.CreateAlignedLoad(ptrTy, varBoardSrc, {});
+    Value *val3 = builder.CreateLoad(ptrTy, varBoardSrc);
     Value *val4 = builder.CreateInBoundsGEP(intTy, val3, {getInt(1)});
     builder.CreateStore(getInt(1), val4);
     Value *val5 = builder.CreateInBoundsGEP(intTy, val3, {getInt(SIM_X_SIZE + 2)});
@@ -130,7 +132,7 @@ void defineMain() {
     builder.SetInsertPoint(bb26);
     // %27 = phi i32 [ 0, %11 ], [ %59, %107 ]
     PHINode *val27 = builder.CreatePHI(intTy, 1);
-    Value *val28 = builder.CreateAlignedLoad(ptrTy, varBoardSrc, {});
+    Value *val28 = builder.CreateLoad(ptrTy, varBoardSrc);
     Value *val29 = builder.CreateAdd(val27, getInt(-1), "", false, true);
     Value *val30 = builder.CreateICmpULT(val29, getInt(SIM_X_SIZE));
     Value *val31 = builder.CreateSelect(val15, val30, getBool(0));
@@ -139,8 +141,8 @@ void defineMain() {
     builder.SetInsertPoint(bb32);
     Value *val33 = builder.CreateAdd(val29, val16, "", true, true);
     Value *val34 = builder.CreateZExt(val33, longTy);
-    Value *val35 = builder.CreateInBoundsGEP(intTy, val28, val33);
-    Value *val36 = builder.CreateAlignedLoad(intTy, val35, {});
+    Value *val35 = builder.CreateInBoundsGEP(intTy, val28, val34);
+    Value *val36 = builder.CreateLoad(intTy, val35);
     builder.CreateBr(bb41);
 
     builder.SetInsertPoint(bb37);
@@ -152,12 +154,12 @@ void defineMain() {
     builder.CreateBr(bb57);
 
     builder.SetInsertPoint(bb41);
-  // %42 = phi i32 [ %36, %32 ], [ 0, %37 ]
+    // %42 = phi i32 [ %36, %32 ], [ 0, %37 ]
     PHINode *val42 = builder.CreatePHI(intTy, 1);
     Value *val43 = builder.CreateOr(val27, val16);
     Value *val44 = builder.CreateZExt(val43, longTy);
     Value *val45 = builder.CreateInBoundsGEP(intTy, val28, val44);
-    Value *val46 = builder.CreateAlignedLoad(intTy, val45, {});
+    Value *val46 = builder.CreateLoad(intTy, val45);
     Value *val47 = builder.CreateAdd(val46, val42, "", false, true);
     Value *val48 = builder.CreateAdd(val27, getInt(1), "", true, true);
     Value *val49 = builder.CreateICmpNE(val27, getInt(SIM_X_SIZE - 1));
@@ -168,14 +170,14 @@ void defineMain() {
     Value *val52 = builder.CreateAdd(val48, val16, "", true, true);
     Value *val53 = builder.CreateZExt(val52, longTy);
     Value *val54 = builder.CreateInBoundsGEP(intTy, val28, val53);
-    Value *val55 = builder.CreateAlignedLoad(intTy, val54, {});
+    Value *val55 = builder.CreateLoad(intTy, val54);
     Value *val56 = builder.CreateAdd(val55, val47, "", false, true);
     builder.CreateBr(bb57);
 
     builder.SetInsertPoint(bb57);
-  // %58 = phi i1 [ true, %51 ], [ %49, %41 ], [ %40, %38 ]
-  // %59 = phi i32 [ %48, %51 ], [ %48, %41 ], [ %39, %38 ]
-  // %60 = phi i32 [ %56, %51 ], [ %47, %41 ], [ 0, %38 ]
+    // %58 = phi i1 [ true, %51 ], [ %49, %41 ], [ %40, %38 ]
+    // %59 = phi i32 [ %48, %51 ], [ %48, %41 ], [ %39, %38 ]
+    // %60 = phi i32 [ %56, %51 ], [ %47, %41 ], [ 0, %38 ]
     PHINode *val58 = builder.CreatePHI(boolTy, 3);
     PHINode *val59 = builder.CreatePHI(intTy, 3);
     PHINode *val60 = builder.CreatePHI(intTy, 3);
@@ -186,108 +188,152 @@ void defineMain() {
     Value *val63 = builder.CreateAdd(val29, val17, "", true, true);
     Value *val64 = builder.CreateZExt(val63, longTy);
     Value *val65 = builder.CreateInBoundsGEP(intTy, val28, val64);
-    Value *val66 = builder.CreateAlignedLoad(intTy, val65, {});
+    Value *val66 = builder.CreateLoad(intTy, val65);
     Value *val67 = builder.CreateAdd(val66, val60, "", false, true);
     builder.CreateBr(bb69);
 
     builder.SetInsertPoint(bb68);
     builder.CreateCondBr(val12, bb69, bb83);
-    /*
-69:                                               ; preds = %68, %62
-  %70 = phi i32 [ %67, %62 ], [ %60, %68 ]
-  %71 = or i32 %27, %17
-  %72 = zext i32 %71 to i64
-  %73 = getelementptr inbounds i32, ptr %28, i64 %72
-  %74 = load i32, ptr %73, align 4, !tbaa !9
-  %75 = add nsw i32 %74, %70
-  %76 = select i1 %12, i1 %58, i1 false
-  br i1 %76, label %77, label %83
 
-77:                                               ; preds = %69
-  %78 = add nuw nsw i32 %59, %17
-  %79 = zext i32 %78 to i64
-  %80 = getelementptr inbounds i32, ptr %28, i64 %79
-  %81 = load i32, ptr %80, align 4, !tbaa !9
-  %82 = add nsw i32 %81, %75
-  br label %83
+    builder.SetInsertPoint(bb69);
+    // %70 = phi i32 [ %67, %62 ], [ %60, %68 ]
+    PHINode *val70 = builder.CreatePHI(intTy, 2);
+    Value *val71 = builder.CreateOr(val27, val17);
+    Value *val72 = builder.CreateZExt(val71, longTy);
+    Value *val73 = builder.CreateInBoundsGEP(intTy, val28, val72);
+    Value *val74 = builder.CreateLoad(intTy, val73);
+    Value *val75 = builder.CreateAdd(val74, val70, "", false, true);
+    Value *val76 = builder.CreateSelect(val12, val58, getBool(0));
+    builder.CreateCondBr(val76, bb77, bb83);
 
-83:                                               ; preds = %77, %69, %68
-  %84 = phi i32 [ %82, %77 ], [ %75, %69 ], [ %60, %68 ]
-  %85 = select i1 %18, i1 %30, i1 false
-  br i1 %85, label %86, label %92
+    builder.SetInsertPoint(bb77);
+    Value *val78 = builder.CreateAdd(val59, val17, "", true, true);
+    Value *val79 = builder.CreateZExt(val78, longTy);
+    Value *val80 = builder.CreateInBoundsGEP(intTy, val28, val79);
+    Value *val81 = builder.CreateLoad(intTy, val80);
+    Value *val82 = builder.CreateAdd(val81, val75, "", false, true);
+    builder.CreateBr(bb83);
 
-86:                                               ; preds = %83
-  %87 = add nuw nsw i32 %29, %19
-  %88 = zext i32 %87 to i64
-  %89 = getelementptr inbounds i32, ptr %28, i64 %88
-  %90 = load i32, ptr %89, align 4, !tbaa !9
-  %91 = add nsw i32 %90, %84
-  br label %93
+    builder.SetInsertPoint(bb83);
+    // %84 = phi i32 [ %82, %77 ], [ %75, %69 ], [ %60, %68 ]
+    PHINode *val84 = builder.CreatePHI(intTy, 3);
+    Value *val85 = builder.CreateSelect(val18, val30, getBool(0));
+    builder.CreateCondBr(val85, bb86, bb92);
 
-92:                                               ; preds = %83
-  br i1 %18, label %93, label %107
+    builder.SetInsertPoint(bb86);
+    Value *val87 = builder.CreateAdd(val29, val19, "", true, true);
+    Value *val88 = builder.CreateZExt(val87, longTy);
+    Value *val89 = builder.CreateInBoundsGEP(intTy, val28, val88);
+    Value *val90 = builder.CreateLoad(intTy, val89);
+    Value *val91 = builder.CreateAdd(val90, val84, "", false, true);
+    builder.CreateBr(bb93);
 
-93:                                               ; preds = %92, %86
-  %94 = phi i32 [ %91, %86 ], [ %84, %92 ]
-  %95 = or i32 %27, %19
-  %96 = zext i32 %95 to i64
-  %97 = getelementptr inbounds i32, ptr %28, i64 %96
-  %98 = load i32, ptr %97, align 4, !tbaa !9
-  %99 = add nsw i32 %98, %94
-  %100 = select i1 %18, i1 %58, i1 false
-  br i1 %100, label %101, label %107
+    builder.SetInsertPoint(bb92);
+    builder.CreateCondBr(val18, bb93, bb107);
 
-101:                                              ; preds = %93
-  %102 = add nuw nsw i32 %59, %19
-  %103 = zext i32 %102 to i64
-  %104 = getelementptr inbounds i32, ptr %28, i64 %103
-  %105 = load i32, ptr %104, align 4, !tbaa !9
-  %106 = add nsw i32 %105, %99
-  br label %107
+    builder.SetInsertPoint(bb93);
+    // %94 = phi i32 [ %91, %86 ], [ %84, %92 ]
+    PHINode *val94 = builder.CreatePHI(intTy, 2);
+    Value *val95 = builder.CreateOr(val27, val19);
+    Value *val96 = builder.CreateZExt(val95, longTy);
+    Value *val97 = builder.CreateInBoundsGEP(intTy, val28, val96);
+    Value *val98 = builder.CreateLoad(intTy, val97);
+    Value *val99 = builder.CreateAdd(val98, val94, "", false, true);
+    Value *val100 = builder.CreateSelect(val18, val58, getBool(0));
+    builder.CreateCondBr(val100, bb101, bb107);
 
-107:                                              ; preds = %101, %93, %92
-  %108 = phi i32 [ %106, %101 ], [ %99, %93 ], [ %84, %92 ]
-  %109 = or i32 %27, %17
-  %110 = zext i32 %109 to i64
-  %111 = getelementptr inbounds i32, ptr %28, i64 %110
-  %112 = load i32, ptr %111, align 4, !tbaa !9
-  %113 = icmp eq i32 %112, 0
-  %114 = icmp eq i32 %108, 3
-  %115 = add i32 %108, -3
-  %116 = icmp ult i32 %115, 2
-  %117 = select i1 %113, i1 %114, i1 %116
-  %118 = zext i1 %117 to i32
-  %119 = load ptr, ptr @board_next, align 8, !tbaa !5
-  %120 = getelementptr inbounds i32, ptr %119, i64 %110
-  store i32 %118, ptr %120, align 4, !tbaa !9
-  %121 = select i1 %117, i32 0, i32 16777215
-  tail call void @simSetPixel(i32 noundef %27, i32 noundef %13, i32 noundef %121) #2
-  %122 = icmp ult i32 %59, 64
-  br i1 %122, label %26, label %20, !llvm.loop !13
+    builder.SetInsertPoint(bb101);
+    Value *val102 = builder.CreateAdd(val59, val19, "", true, true);
+    Value *val103 = builder.CreateZExt(val102, longTy);
+    Value *val104 = builder.CreateInBoundsGEP(intTy, val28, val103);
+    Value *val105 = builder.CreateLoad(intTy, val104);
+    Value *val106 = builder.CreateAdd(val105, val99, "", false, true);
+    builder.CreateBr(bb107);
 
-123:                                              ; preds = %20
-  %124 = load ptr, ptr @board, align 8, !tbaa !5
-  %125 = load ptr, ptr @board_next, align 8, !tbaa !5
-  store ptr %125, ptr @board, align 8, !tbaa !5
-  store ptr %124, ptr @board_next, align 8, !tbaa !5
-  tail call void (...) @simFlush() #2
-  %126 = tail call i32 (...) @simShouldContinue() #2
-  %127 = icmp eq i32 %126, 0
-  br i1 %127, label %128, label %23
+    builder.SetInsertPoint(bb107);
+    // %108 = phi i32 [ %106, %101 ], [ %99, %93 ], [ %84, %92 ]
+    PHINode *val108 = builder.CreatePHI(intTy, 3);
+    Value *val109 = builder.CreateOr(val27, val17);
+    Value *val110 = builder.CreateZExt(val109, longTy);
+    Value *val111 = builder.CreateInBoundsGEP(intTy, val28, val110);
+    Value *val112 = builder.CreateLoad(intTy, val111);
+    Value *val113 = builder.CreateICmpEQ(val112, getInt(0));
+    Value *val114 = builder.CreateICmpEQ(val108, getInt(3));
+    Value *val115 = builder.CreateAdd(val108, getInt(-3));
+    Value *val116 = builder.CreateICmpULT(val115, getInt(2));
+    Value *val117 = builder.CreateSelect(val113, val114, val116);
+    Value *val118 = builder.CreateZExt(val117, intTy);
+    Value *val119 = builder.CreateLoad(ptrTy, varBoardDst);
+    Value *val120 = builder.CreateInBoundsGEP(intTy, val119, val110);
+    Value *val121 = builder.CreateSelect(val117, getInt(0), getInt(0xFFFFFF));
+    builder.CreateCall(fnSimSetPixel, {val27, val13, val121})->setTailCall();
+    Value *val122 = builder.CreateICmpULT(val59, getInt(SIM_X_SIZE));
+    builder.CreateCondBr(val122, bb26, bb20);
 
-128:                                              ; preds = %123, %2
-  tail call void (...) @simEnd() #2
-  ret i32 0
-    */
+    builder.SetInsertPoint(bb123);
+    Value *val124 = builder.CreateLoad(ptrTy, varBoardSrc);
+    Value *val125 = builder.CreateLoad(ptrTy, varBoardDst);
+    builder.CreateStore(val125, varBoardSrc);
+    builder.CreateStore(val124, varBoardDst);
+    builder.CreateCall(fnSimFlush)->setTailCall();
+    CallInst *val126 = builder.CreateCall(fnSimShouldContinue);
+    val126->setTailCall();
+    Value *val127 = builder.CreateICmpEQ(val126, getInt(0));
+    builder.CreateCondBr(val127, bb128, bb23);
 
     builder.SetInsertPoint(bb128);
     builder.CreateCall(fnSimEnd)->setTailCall();
     builder.CreateRet(getInt(0));
+
+    // %12 = phi i1 [ %24, %23 ], [ true, %2 ]
+    val12->addIncoming(val24, bb23);
+    val12->addIncoming(getBool(1), bb2);
+    // %13 = phi i32 [ %25, %23 ], [ 0, %2 ]
+    val13->addIncoming(val25, bb23);
+    val13->addIncoming(getInt(0), bb2);
+    // %24 = phi i1 [ %18, %20 ], [ true, %123 ]
+    val24->addIncoming(val18, bb20);
+    val24->addIncoming(getBool(1), bb123);
+    // %25 = phi i32 [ %21, %20 ], [ 0, %123 ]
+    val25->addIncoming(val21, bb20);
+    val25->addIncoming(getInt(0), bb123);
+    // %27 = phi i32 [ 0, %11 ], [ %59, %107 ]
+    val27->addIncoming(getInt(0), bb11);
+    val27->addIncoming(val59, bb107);
+    // %42 = phi i32 [ %36, %32 ], [ 0, %37 ]
+    val42->addIncoming(val36, bb32);
+    val42->addIncoming(getInt(0), bb37);
+    // %58 = phi i1 [ true, %51 ], [ %49, %41 ], [ %40, %38 ]
+    val58->addIncoming(getBool(1), bb51);
+    val58->addIncoming(val49, bb41);
+    val58->addIncoming(val40, bb38);
+    // %59 = phi i32 [ %48, %51 ], [ %48, %41 ], [ %39, %38 ]
+    val59->addIncoming(val48, bb51);
+    val59->addIncoming(val48, bb41);
+    val59->addIncoming(val39, bb38);
+    // %60 = phi i32 [ %56, %51 ], [ %47, %41 ], [ 0, %38 ]
+    val60->addIncoming(val56, bb51);
+    val60->addIncoming(val47, bb41);
+    val60->addIncoming(getInt(0), bb38);
+    // %70 = phi i32 [ %67, %62 ], [ %60, %68 ]
+    val70->addIncoming(val67, bb62);
+    val70->addIncoming(val60, bb68);
+    // %84 = phi i32 [ %82, %77 ], [ %75, %69 ], [ %60, %68 ]
+    val84->addIncoming(val82, bb77);
+    val84->addIncoming(val75, bb69);
+    val84->addIncoming(val60, bb68);
+    // %94 = phi i32 [ %91, %86 ], [ %84, %92 ]
+    val94->addIncoming(val91, bb86);
+    val94->addIncoming(val84, bb92);
+    // %108 = phi i32 [ %106, %101 ], [ %99, %93 ], [ %84, %92 ]
+    val108->addIncoming(val106, bb101);
+    val108->addIncoming(val99, bb93);
+    val108->addIncoming(val84, bb92);
 }
 
 int main() {
     defineMain();
-    outs() << "Module code:\n////\n" << *module << "////\n";
+    outs() << *module;
 
     return 0;
 }
