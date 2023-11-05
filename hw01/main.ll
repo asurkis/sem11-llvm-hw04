@@ -4,312 +4,224 @@ target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16
 target triple = "x86_64-pc-linux-gnu"
 
 @BUF = dso_local global [2 x [2304 x i32]] zeroinitializer, align 16
-@board = dso_local global ptr @BUF, align 8
-@board_next = dso_local global ptr getelementptr (i8, ptr @BUF, i64 9216), align 8
+@board = dso_local local_unnamed_addr global ptr @BUF, align 8
+@board_next = dso_local local_unnamed_addr global ptr getelementptr inbounds ([2 x [2304 x i32]], ptr @BUF, i64 0, i64 1, i64 0), align 8
 
-; Function Attrs: noinline nounwind optnone sspstrong uwtable
-define dso_local i32 @main(i32 noundef %0, ptr noundef %1) #0 {
-  %3 = alloca i32, align 4
-  %4 = alloca i32, align 4
-  %5 = alloca ptr, align 8
-  %6 = alloca ptr, align 8
-  store i32 0, ptr %3, align 4
-  store i32 %0, ptr %4, align 4
-  store ptr %1, ptr %5, align 8
-  call void (...) @simBegin()
-  call void @initBoard()
-  br label %7
+; Function Attrs: nounwind sspstrong uwtable
+define dso_local i32 @main(i32 noundef %0, ptr nocapture noundef readnone %1) local_unnamed_addr #0 {
+  tail call void (...) @simBegin() #2
+  %3 = load ptr, ptr @board, align 8, !tbaa !5
+  %4 = getelementptr inbounds i32, ptr %3, i64 1
+  store i32 1, ptr %4, align 4, !tbaa !9
+  %5 = getelementptr inbounds i32, ptr %3, i64 66
+  store i32 1, ptr %5, align 4, !tbaa !9
+  %6 = getelementptr inbounds i32, ptr %3, i64 128
+  store i32 1, ptr %6, align 4, !tbaa !9
+  %7 = getelementptr inbounds i32, ptr %3, i64 129
+  store i32 1, ptr %7, align 4, !tbaa !9
+  %8 = getelementptr inbounds i32, ptr %3, i64 130
+  store i32 1, ptr %8, align 4, !tbaa !9
+  %9 = tail call i32 (...) @simShouldContinue() #2
+  %10 = icmp eq i32 %9, 0
+  br i1 %10, label %128, label %11
 
-7:                                                ; preds = %10, %2
-  %8 = call i32 (...) @simShouldContinue()
-  %9 = icmp ne i32 %8, 0
-  br i1 %9, label %10, label %14
+11:                                               ; preds = %2, %23
+  %12 = phi i1 [ %24, %23 ], [ true, %2 ]
+  %13 = phi i32 [ %25, %23 ], [ 0, %2 ]
+  %14 = add nsw i32 %13, -1
+  %15 = icmp ult i32 %14, 36
+  %16 = shl nuw nsw i32 %14, 6
+  %17 = shl i32 %13, 6
+  %18 = icmp ult i32 %13, 35
+  %19 = add nuw nsw i32 %17, 64
+  br label %26
 
-10:                                               ; preds = %7
-  call void @fillNextState()
-  %11 = load ptr, ptr @board, align 8
-  store ptr %11, ptr %6, align 8
-  %12 = load ptr, ptr @board_next, align 8
-  store ptr %12, ptr @board, align 8
-  %13 = load ptr, ptr %6, align 8
-  store ptr %13, ptr @board_next, align 8
-  call void (...) @simFlush()
-  br label %7, !llvm.loop !6
+20:                                               ; preds = %107
+  %21 = add nuw nsw i32 %13, 1
+  %22 = icmp eq i32 %21, 36
+  br i1 %22, label %123, label %23
 
-14:                                               ; preds = %7
-  call void (...) @simEnd()
+23:                                               ; preds = %20, %123
+  %24 = phi i1 [ %18, %20 ], [ true, %123 ]
+  %25 = phi i32 [ %21, %20 ], [ 0, %123 ]
+  br label %11, !llvm.loop !11
+
+26:                                               ; preds = %107, %11
+  %27 = phi i32 [ 0, %11 ], [ %59, %107 ]
+  %28 = load ptr, ptr @board, align 8
+  %29 = add nsw i32 %27, -1
+  %30 = icmp ult i32 %29, 64
+  %31 = select i1 %15, i1 %30, i1 false
+  br i1 %31, label %32, label %37
+
+32:                                               ; preds = %26
+  %33 = add nuw nsw i32 %29, %16
+  %34 = zext i32 %33 to i64
+  %35 = getelementptr inbounds i32, ptr %28, i64 %34
+  %36 = load i32, ptr %35, align 4, !tbaa !9
+  br label %41
+
+37:                                               ; preds = %26
+  br i1 %15, label %41, label %38
+
+38:                                               ; preds = %37
+  %39 = add nuw nsw i32 %27, 1
+  %40 = icmp ne i32 %27, 63
+  br label %57
+
+41:                                               ; preds = %37, %32
+  %42 = phi i32 [ %36, %32 ], [ 0, %37 ]
+  %43 = or i32 %27, %16
+  %44 = zext i32 %43 to i64
+  %45 = getelementptr inbounds i32, ptr %28, i64 %44
+  %46 = load i32, ptr %45, align 4, !tbaa !9
+  %47 = add nsw i32 %46, %42
+  %48 = add nuw nsw i32 %27, 1
+  %49 = icmp ne i32 %27, 63
+  %50 = select i1 %15, i1 %49, i1 false
+  br i1 %50, label %51, label %57
+
+51:                                               ; preds = %41
+  %52 = add nuw nsw i32 %48, %16
+  %53 = zext i32 %52 to i64
+  %54 = getelementptr inbounds i32, ptr %28, i64 %53
+  %55 = load i32, ptr %54, align 4, !tbaa !9
+  %56 = add nsw i32 %55, %47
+  br label %57
+
+57:                                               ; preds = %51, %41, %38
+  %58 = phi i1 [ true, %51 ], [ %49, %41 ], [ %40, %38 ]
+  %59 = phi i32 [ %48, %51 ], [ %48, %41 ], [ %39, %38 ]
+  %60 = phi i32 [ %56, %51 ], [ %47, %41 ], [ 0, %38 ]
+  %61 = select i1 %12, i1 %30, i1 false
+  br i1 %61, label %62, label %68
+
+62:                                               ; preds = %57
+  %63 = add nuw nsw i32 %29, %17
+  %64 = zext i32 %63 to i64
+  %65 = getelementptr inbounds i32, ptr %28, i64 %64
+  %66 = load i32, ptr %65, align 4, !tbaa !9
+  %67 = add nsw i32 %66, %60
+  br label %69
+
+68:                                               ; preds = %57
+  br i1 %12, label %69, label %83
+
+69:                                               ; preds = %68, %62
+  %70 = phi i32 [ %67, %62 ], [ %60, %68 ]
+  %71 = or i32 %27, %17
+  %72 = zext i32 %71 to i64
+  %73 = getelementptr inbounds i32, ptr %28, i64 %72
+  %74 = load i32, ptr %73, align 4, !tbaa !9
+  %75 = add nsw i32 %74, %70
+  %76 = select i1 %12, i1 %58, i1 false
+  br i1 %76, label %77, label %83
+
+77:                                               ; preds = %69
+  %78 = add nuw nsw i32 %59, %17
+  %79 = zext i32 %78 to i64
+  %80 = getelementptr inbounds i32, ptr %28, i64 %79
+  %81 = load i32, ptr %80, align 4, !tbaa !9
+  %82 = add nsw i32 %81, %75
+  br label %83
+
+83:                                               ; preds = %77, %69, %68
+  %84 = phi i32 [ %82, %77 ], [ %75, %69 ], [ %60, %68 ]
+  %85 = select i1 %18, i1 %30, i1 false
+  br i1 %85, label %86, label %92
+
+86:                                               ; preds = %83
+  %87 = add nuw nsw i32 %29, %19
+  %88 = zext i32 %87 to i64
+  %89 = getelementptr inbounds i32, ptr %28, i64 %88
+  %90 = load i32, ptr %89, align 4, !tbaa !9
+  %91 = add nsw i32 %90, %84
+  br label %93
+
+92:                                               ; preds = %83
+  br i1 %18, label %93, label %107
+
+93:                                               ; preds = %92, %86
+  %94 = phi i32 [ %91, %86 ], [ %84, %92 ]
+  %95 = or i32 %27, %19
+  %96 = zext i32 %95 to i64
+  %97 = getelementptr inbounds i32, ptr %28, i64 %96
+  %98 = load i32, ptr %97, align 4, !tbaa !9
+  %99 = add nsw i32 %98, %94
+  %100 = select i1 %18, i1 %58, i1 false
+  br i1 %100, label %101, label %107
+
+101:                                              ; preds = %93
+  %102 = add nuw nsw i32 %59, %19
+  %103 = zext i32 %102 to i64
+  %104 = getelementptr inbounds i32, ptr %28, i64 %103
+  %105 = load i32, ptr %104, align 4, !tbaa !9
+  %106 = add nsw i32 %105, %99
+  br label %107
+
+107:                                              ; preds = %101, %93, %92
+  %108 = phi i32 [ %106, %101 ], [ %99, %93 ], [ %84, %92 ]
+  %109 = or i32 %27, %17
+  %110 = zext i32 %109 to i64
+  %111 = getelementptr inbounds i32, ptr %28, i64 %110
+  %112 = load i32, ptr %111, align 4, !tbaa !9
+  %113 = icmp eq i32 %112, 0
+  %114 = icmp eq i32 %108, 3
+  %115 = add i32 %108, -3
+  %116 = icmp ult i32 %115, 2
+  %117 = select i1 %113, i1 %114, i1 %116
+  %118 = zext i1 %117 to i32
+  %119 = load ptr, ptr @board_next, align 8, !tbaa !5
+  %120 = getelementptr inbounds i32, ptr %119, i64 %110
+  store i32 %118, ptr %120, align 4, !tbaa !9
+  %121 = select i1 %117, i32 0, i32 16777215
+  tail call void @simSetPixel(i32 noundef %27, i32 noundef %13, i32 noundef %121) #2
+  %122 = icmp ult i32 %59, 64
+  br i1 %122, label %26, label %20, !llvm.loop !13
+
+123:                                              ; preds = %20
+  %124 = load ptr, ptr @board, align 8, !tbaa !5
+  %125 = load ptr, ptr @board_next, align 8, !tbaa !5
+  store ptr %125, ptr @board, align 8, !tbaa !5
+  store ptr %124, ptr @board_next, align 8, !tbaa !5
+  tail call void (...) @simFlush() #2
+  %126 = tail call i32 (...) @simShouldContinue() #2
+  %127 = icmp eq i32 %126, 0
+  br i1 %127, label %128, label %23
+
+128:                                              ; preds = %123, %2
+  tail call void (...) @simEnd() #2
   ret i32 0
 }
 
-declare void @simBegin(...) #1
+declare void @simBegin(...) local_unnamed_addr #1
 
-declare i32 @simShouldContinue(...) #1
+declare i32 @simShouldContinue(...) local_unnamed_addr #1
 
-declare void @simFlush(...) #1
+declare void @simFlush(...) local_unnamed_addr #1
 
-declare void @simEnd(...) #1
+declare void @simEnd(...) local_unnamed_addr #1
 
-; Function Attrs: noinline nounwind optnone sspstrong uwtable
-define internal void @initBoard() #0 {
-  %1 = load ptr, ptr @board, align 8
-  %2 = getelementptr inbounds i32, ptr %1, i64 1
-  store i32 1, ptr %2, align 4
-  %3 = load ptr, ptr @board, align 8
-  %4 = getelementptr inbounds i32, ptr %3, i64 66
-  store i32 1, ptr %4, align 4
-  %5 = load ptr, ptr @board, align 8
-  %6 = getelementptr inbounds i32, ptr %5, i64 128
-  store i32 1, ptr %6, align 4
-  %7 = load ptr, ptr @board, align 8
-  %8 = getelementptr inbounds i32, ptr %7, i64 129
-  store i32 1, ptr %8, align 4
-  %9 = load ptr, ptr @board, align 8
-  %10 = getelementptr inbounds i32, ptr %9, i64 130
-  store i32 1, ptr %10, align 4
-  ret void
-}
+declare void @simSetPixel(i32 noundef, i32 noundef, i32 noundef) local_unnamed_addr #1
 
-; Function Attrs: noinline nounwind optnone sspstrong uwtable
-define internal void @fillNextState() #0 {
-  %1 = alloca i32, align 4
-  %2 = alloca i32, align 4
-  %3 = alloca i32, align 4
-  %4 = alloca i32, align 4
-  %5 = alloca i32, align 4
-  store i32 0, ptr %1, align 4
-  br label %6
+attributes #0 = { nounwind sspstrong uwtable "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
+attributes #1 = { "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
+attributes #2 = { nounwind }
 
-6:                                                ; preds = %68, %0
-  %7 = load i32, ptr %1, align 4
-  %8 = icmp slt i32 %7, 36
-  br i1 %8, label %9, label %71
-
-9:                                                ; preds = %6
-  store i32 0, ptr %2, align 4
-  br label %10
-
-10:                                               ; preds = %64, %9
-  %11 = load i32, ptr %2, align 4
-  %12 = icmp slt i32 %11, 64
-  br i1 %12, label %13, label %67
-
-13:                                               ; preds = %10
-  %14 = load i32, ptr %1, align 4
-  %15 = load i32, ptr %2, align 4
-  %16 = call i32 @calcNeighbors(i32 noundef %14, i32 noundef %15)
-  store i32 %16, ptr %3, align 4
-  %17 = load i32, ptr %1, align 4
-  %18 = mul nsw i32 %17, 64
-  %19 = load i32, ptr %2, align 4
-  %20 = add nsw i32 %18, %19
-  store i32 %20, ptr %4, align 4
-  %21 = load ptr, ptr @board, align 8
-  %22 = load i32, ptr %4, align 4
-  %23 = sext i32 %22 to i64
-  %24 = getelementptr inbounds i32, ptr %21, i64 %23
-  %25 = load i32, ptr %24, align 4
-  %26 = icmp ne i32 %25, 0
-  br i1 %26, label %27, label %44
-
-27:                                               ; preds = %13
-  %28 = load i32, ptr %3, align 4
-  %29 = icmp eq i32 %28, 3
-  br i1 %29, label %33, label %30
-
-30:                                               ; preds = %27
-  %31 = load i32, ptr %3, align 4
-  %32 = icmp eq i32 %31, 4
-  br label %33
-
-33:                                               ; preds = %30, %27
-  %34 = phi i1 [ true, %27 ], [ %32, %30 ]
-  %35 = zext i1 %34 to i32
-  store i32 %35, ptr %5, align 4
-  %36 = load i32, ptr %5, align 4
-  %37 = icmp ne i32 %36, 0
-  %38 = zext i1 %37 to i64
-  %39 = select i1 %37, i32 1, i32 0
-  %40 = load ptr, ptr @board_next, align 8
-  %41 = load i32, ptr %4, align 4
-  %42 = sext i32 %41 to i64
-  %43 = getelementptr inbounds i32, ptr %40, i64 %42
-  store i32 %39, ptr %43, align 4
-  br label %53
-
-44:                                               ; preds = %13
-  %45 = load i32, ptr %3, align 4
-  %46 = icmp eq i32 %45, 3
-  %47 = zext i1 %46 to i64
-  %48 = select i1 %46, i32 1, i32 0
-  %49 = load ptr, ptr @board_next, align 8
-  %50 = load i32, ptr %4, align 4
-  %51 = sext i32 %50 to i64
-  %52 = getelementptr inbounds i32, ptr %49, i64 %51
-  store i32 %48, ptr %52, align 4
-  br label %53
-
-53:                                               ; preds = %44, %33
-  %54 = load i32, ptr %2, align 4
-  %55 = load i32, ptr %1, align 4
-  %56 = load ptr, ptr @board_next, align 8
-  %57 = load i32, ptr %4, align 4
-  %58 = sext i32 %57 to i64
-  %59 = getelementptr inbounds i32, ptr %56, i64 %58
-  %60 = load i32, ptr %59, align 4
-  %61 = icmp ne i32 %60, 0
-  %62 = zext i1 %61 to i64
-  %63 = select i1 %61, i32 0, i32 16777215
-  call void @simSetPixel(i32 noundef %54, i32 noundef %55, i32 noundef %63)
-  br label %64
-
-64:                                               ; preds = %53
-  %65 = load i32, ptr %2, align 4
-  %66 = add nsw i32 %65, 1
-  store i32 %66, ptr %2, align 4
-  br label %10, !llvm.loop !8
-
-67:                                               ; preds = %10
-  br label %68
-
-68:                                               ; preds = %67
-  %69 = load i32, ptr %1, align 4
-  %70 = add nsw i32 %69, 1
-  store i32 %70, ptr %1, align 4
-  br label %6, !llvm.loop !9
-
-71:                                               ; preds = %6
-  ret void
-}
-
-; Function Attrs: noinline nounwind optnone sspstrong uwtable
-define internal i32 @calcNeighbors(i32 noundef %0, i32 noundef %1) #0 {
-  %3 = alloca i32, align 4
-  %4 = alloca i32, align 4
-  %5 = alloca i32, align 4
-  %6 = alloca i32, align 4
-  %7 = alloca i32, align 4
-  %8 = alloca i32, align 4
-  %9 = alloca i32, align 4
-  %10 = alloca i32, align 4
-  %11 = alloca i32, align 4
-  store i32 %0, ptr %3, align 4
-  store i32 %1, ptr %4, align 4
-  store i32 0, ptr %5, align 4
-  store i32 -1, ptr %6, align 4
-  br label %12
-
-12:                                               ; preds = %63, %2
-  %13 = load i32, ptr %6, align 4
-  %14 = icmp sle i32 %13, 1
-  br i1 %14, label %15, label %66
-
-15:                                               ; preds = %12
-  store i32 -1, ptr %7, align 4
-  br label %16
-
-16:                                               ; preds = %59, %15
-  %17 = load i32, ptr %7, align 4
-  %18 = icmp sle i32 %17, 1
-  br i1 %18, label %19, label %62
-
-19:                                               ; preds = %16
-  %20 = load i32, ptr %3, align 4
-  %21 = load i32, ptr %6, align 4
-  %22 = add nsw i32 %20, %21
-  store i32 %22, ptr %8, align 4
-  %23 = load i32, ptr %4, align 4
-  %24 = load i32, ptr %7, align 4
-  %25 = add nsw i32 %23, %24
-  store i32 %25, ptr %9, align 4
-  %26 = load i32, ptr %8, align 4
-  %27 = icmp sle i32 0, %26
-  br i1 %27, label %28, label %31
-
-28:                                               ; preds = %19
-  %29 = load i32, ptr %8, align 4
-  %30 = icmp slt i32 %29, 36
-  br label %31
-
-31:                                               ; preds = %28, %19
-  %32 = phi i1 [ false, %19 ], [ %30, %28 ]
-  %33 = zext i1 %32 to i32
-  store i32 %33, ptr %10, align 4
-  %34 = load i32, ptr %9, align 4
-  %35 = icmp sle i32 0, %34
-  br i1 %35, label %36, label %39
-
-36:                                               ; preds = %31
-  %37 = load i32, ptr %9, align 4
-  %38 = icmp slt i32 %37, 64
-  br label %39
-
-39:                                               ; preds = %36, %31
-  %40 = phi i1 [ false, %31 ], [ %38, %36 ]
-  %41 = zext i1 %40 to i32
-  store i32 %41, ptr %11, align 4
-  %42 = load i32, ptr %10, align 4
-  %43 = icmp ne i32 %42, 0
-  br i1 %43, label %44, label %58
-
-44:                                               ; preds = %39
-  %45 = load i32, ptr %11, align 4
-  %46 = icmp ne i32 %45, 0
-  br i1 %46, label %47, label %58
-
-47:                                               ; preds = %44
-  %48 = load ptr, ptr @board, align 8
-  %49 = load i32, ptr %8, align 4
-  %50 = mul nsw i32 %49, 64
-  %51 = load i32, ptr %9, align 4
-  %52 = add nsw i32 %50, %51
-  %53 = sext i32 %52 to i64
-  %54 = getelementptr inbounds i32, ptr %48, i64 %53
-  %55 = load i32, ptr %54, align 4
-  %56 = load i32, ptr %5, align 4
-  %57 = add nsw i32 %56, %55
-  store i32 %57, ptr %5, align 4
-  br label %58
-
-58:                                               ; preds = %47, %44, %39
-  br label %59
-
-59:                                               ; preds = %58
-  %60 = load i32, ptr %7, align 4
-  %61 = add nsw i32 %60, 1
-  store i32 %61, ptr %7, align 4
-  br label %16, !llvm.loop !10
-
-62:                                               ; preds = %16
-  br label %63
-
-63:                                               ; preds = %62
-  %64 = load i32, ptr %6, align 4
-  %65 = add nsw i32 %64, 1
-  store i32 %65, ptr %6, align 4
-  br label %12, !llvm.loop !11
-
-66:                                               ; preds = %12
-  %67 = load i32, ptr %5, align 4
-  ret i32 %67
-}
-
-declare void @simSetPixel(i32 noundef, i32 noundef, i32 noundef) #1
-
-attributes #0 = { noinline nounwind optnone sspstrong uwtable "frame-pointer"="all" "min-legal-vector-width"="0" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
-attributes #1 = { "frame-pointer"="all" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
-
-!llvm.module.flags = !{!0, !1, !2, !3, !4}
-!llvm.ident = !{!5}
+!llvm.module.flags = !{!0, !1, !2, !3}
+!llvm.ident = !{!4}
 
 !0 = !{i32 1, !"wchar_size", i32 4}
 !1 = !{i32 8, !"PIC Level", i32 2}
 !2 = !{i32 7, !"PIE Level", i32 2}
 !3 = !{i32 7, !"uwtable", i32 2}
-!4 = !{i32 7, !"frame-pointer", i32 2}
-!5 = !{!"clang version 16.0.6"}
-!6 = distinct !{!6, !7}
-!7 = !{!"llvm.loop.mustprogress"}
-!8 = distinct !{!8, !7}
-!9 = distinct !{!9, !7}
-!10 = distinct !{!10, !7}
-!11 = distinct !{!11, !7}
+!4 = !{!"clang version 16.0.6"}
+!5 = !{!6, !6, i64 0}
+!6 = !{!"any pointer", !7, i64 0}
+!7 = !{!"omnipotent char", !8, i64 0}
+!8 = !{!"Simple C/C++ TBAA"}
+!9 = !{!10, !10, i64 0}
+!10 = !{!"int", !7, i64 0}
+!11 = distinct !{!11, !12}
+!12 = !{!"llvm.loop.mustprogress"}
+!13 = distinct !{!13, !12}

@@ -12,3 +12,4 @@ include_directories(hw01 ${LLVM_INCLUDE_DIRS})
 
 add_executable(gen gen.cpp)
 target_link_directories(gen PRIVATE ${LLVM_LIBRARY_DIRS})
+target_link_libraries(gen LLVM)
