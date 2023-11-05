@@ -10,6 +10,6 @@ add_subdirectory(hw01)
 add_definitions(${LLVM_DEFINITIONS})
 include_directories(hw01 ${LLVM_INCLUDE_DIRS})
 
-add_executable(gen gen.cpp)
+add_executable(gen gen.cpp gen.hpp)
 target_link_directories(gen PRIVATE ${LLVM_LIBRARY_DIRS})
 target_link_libraries(gen LLVM)

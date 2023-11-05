@@ -1,3 +1,5 @@
+#pragma once
+
 #include "hw01/sim.h"
 
 #include <llvm/IR/Constants.h>
@@ -12,53 +14,54 @@
 
 using namespace llvm;
 
-LLVMContext context;
-Module *module = new Module("main.c", context);
-IRBuilder<> builder(context);
+inline LLVMContext context;
+inline Module *module = new Module("main.c", context);
+inline IRBuilder<> builder(context);
 
 // Type *charTy = builder.getInt8Ty();
-Type *boolTy = builder.getInt1Ty();
-Type *intTy = builder.getInt32Ty();
-Type *longTy = builder.getInt64Ty();
-Type *ptrTy = builder.getPtrTy();
-Type *voidTy = builder.getVoidTy();
+inline Type *boolTy = builder.getInt1Ty();
+inline Type *intTy = builder.getInt32Ty();
+inline Type *longTy = builder.getInt64Ty();
+inline Type *ptrTy = builder.getPtrTy();
+inline Type *voidTy = builder.getVoidTy();
 
-Constant *getInt(int32_t val) { return ConstantInt::get(intTy, val, true); }
-Constant *getLong(int64_t val) { return ConstantInt::get(longTy, val, true); }
-Constant *getBool(int val) { return ConstantInt::get(boolTy, val); }
+inline Constant *getInt(int32_t val) { return ConstantInt::get(intTy, val, true); }
+inline Constant *getLong(int64_t val) { return ConstantInt::get(longTy, val, true); }
+inline Constant *getBool(int val) { return ConstantInt::get(boolTy, val); }
 
-constexpr uint64_t layerSize = SIM_X_SIZE * SIM_Y_SIZE;
-Type *boardTy = ArrayType::get(intTy, layerSize);
-Type *varBUFTy = ArrayType::get(boardTy, 2);
-GlobalVariable *varBUF = new GlobalVariable(
+inline constexpr uint64_t layerSize = SIM_X_SIZE * SIM_Y_SIZE;
+inline Type *boardTy = ArrayType::get(intTy, layerSize);
+inline Type *varBUFTy = ArrayType::get(boardTy, 2);
+inline GlobalVariable *varBUF = new GlobalVariable(
     *module, varBUFTy, false, GlobalVariable::PrivateLinkage, ConstantAggregateZero::get(intTy), "BUF");
 
-GlobalVariable *varBoardSrc
+inline GlobalVariable *varBoardSrc
     = new GlobalVariable(*module, ptrTy, false, GlobalVariable::PrivateLinkage, varBUF, "board");
 
-Constant *idxList[] = {getLong(0), getLong(1), getLong(0)};
-GlobalVariable *varBoardDst = new GlobalVariable(*module,
-                                                 ptrTy,
-                                                 false,
-                                                 GlobalVariable::InternalLinkage,
-                                                 ConstantExpr::getInBoundsGetElementPtr(varBUFTy, varBUF, idxList),
-                                                 "boardNext");
+inline Constant *idxList[] = {getLong(0), getLong(1), getLong(0)};
+inline GlobalVariable *varBoardDst
+    = new GlobalVariable(*module,
+                         ptrTy,
+                         false,
+                         GlobalVariable::InternalLinkage,
+                         ConstantExpr::getInBoundsGetElementPtr(varBUFTy, varBUF, idxList),
+                         "boardNext");
 
-FunctionType *fnMainTy = FunctionType::get(intTy, {intTy, ptrTy}, false);
-Function *fnMain = Function::Create(fnMainTy, Function::ExternalLinkage, "main", module);
+inline FunctionType *fnMainTy = FunctionType::get(intTy, {intTy, ptrTy}, false);
+inline Function *fnMain = Function::Create(fnMainTy, Function::ExternalLinkage, "main", module);
 
-FunctionType *voidFnTy = FunctionType::get(voidTy, false);
-FunctionCallee fnSimBegin = module->getOrInsertFunction("simBegin", voidFnTy);
-FunctionCallee fnSimFlush = module->getOrInsertFunction("simFlush", voidFnTy);
-FunctionCallee fnSimEnd = module->getOrInsertFunction("simEnd", voidFnTy);
+inline FunctionType *voidFnTy = FunctionType::get(voidTy, false);
+inline FunctionCallee fnSimBegin = module->getOrInsertFunction("simBegin", voidFnTy);
+inline FunctionCallee fnSimFlush = module->getOrInsertFunction("simFlush", voidFnTy);
+inline FunctionCallee fnSimEnd = module->getOrInsertFunction("simEnd", voidFnTy);
 
-FunctionType *fnSimShouldContinueTy = FunctionType::get(intTy, false);
-FunctionCallee fnSimShouldContinue = module->getOrInsertFunction("simShouldContinue", fnSimShouldContinueTy);
+inline FunctionType *fnSimShouldContinueTy = FunctionType::get(intTy, false);
+inline FunctionCallee fnSimShouldContinue = module->getOrInsertFunction("simShouldContinue", fnSimShouldContinueTy);
 
-FunctionType *fnSimSetPixelTy = FunctionType::get(voidTy, {intTy, intTy, intTy}, false);
-FunctionCallee fnSimSetPixel = module->getOrInsertFunction("simSetPixel", fnSimSetPixelTy);
+inline FunctionType *fnSimSetPixelTy = FunctionType::get(voidTy, {intTy, intTy, intTy}, false);
+inline FunctionCallee fnSimSetPixel = module->getOrInsertFunction("simSetPixel", fnSimSetPixelTy);
 
-void defineMain() {
+inline void defineMain() {
     module->setTargetTriple("x86_64-pc-linux-gnu");
     BasicBlock *bb2 = BasicBlock::Create(context, "", fnMain);
     builder.SetInsertPoint(bb2);
@@ -334,11 +337,4 @@ void defineMain() {
     val108->addIncoming(val106, bb101);
     val108->addIncoming(val99, bb93);
     val108->addIncoming(val84, bb92);
-}
-
-int main() {
-    defineMain();
-    outs() << *module;
-
-    return 0;
 }
