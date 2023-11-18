@@ -13,7 +13,3 @@ include_directories(hw01 ${LLVM_INCLUDE_DIRS})
 add_executable(gen gen.cpp gen.hpp)
 target_link_directories(gen PRIVATE ${LLVM_LIBRARY_DIRS})
 target_link_libraries(gen LLVM)
-
-add_custom_target(game-ll COMMAND gen < ${CMAKE_SOURCE_DIR}/game.s > ${CMAKE_SOURCE_DIR}/game.ll)
-add_library(game-obj game.ll)
-add_dependencies(game-obj game-ll)
