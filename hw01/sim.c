@@ -86,3 +86,7 @@ void simFlush() {
         rect.h = h;
         SDL_FillRect(windowSurface, &rect, SDL_MapRGB(windowSurface->format, 192, 192, 192));
 }
+
+void simDebug(int val) {
+        SDL_Log("%d\n", val);
+}

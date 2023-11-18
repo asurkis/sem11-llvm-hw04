@@ -1,7 +1,9 @@
 #include "gen.hpp"
 
+#include <iostream>
+
 int main() {
-    defineMain();
+    defineMain(std::cin);
     outs() << *module;
     return 0;
 }

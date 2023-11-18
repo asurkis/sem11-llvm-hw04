@@ -1,8 +1,8 @@
 #ifndef SIM_H
 #define SIM_H
 
-#define SIM_X_SIZE 64
-#define SIM_Y_SIZE 36
+#define SIM_X_SIZE 640
+#define SIM_Y_SIZE 360
 
 #ifdef __cplusplus
 extern "C" {
@@ -14,6 +14,8 @@ extern int simShouldContinue();
 
 extern void simSetPixel(int x, int y, int rgb);
 extern void simFlush();
+
+extern void simDebug(int val);
 
 #ifdef __cplusplus
 }
